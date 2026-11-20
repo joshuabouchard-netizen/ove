@@ -1,0 +1,47 @@
+# "The Climb": a 45 s action explainer. Cuts land on voice-over word boundaries (vo/wN.mp3.words.json);
+# timeline times are in the comments. kN = generated clips, tNN/oNN = Manim scenes from scenes.py.
+size: [1920, 1080]
+fps: 30
+fit: cover
+loudness: -14
+captions: captions.ass
+video:
+  - {src: clips/k1c.mp4, dur: 2.5}               # 0.0   cold open: drop smashes into soil + THE CLIMB
+  - {src: clips/k2.mp4, dur: 3.3}                # 2.5   "This drop of water is about to climb your plant,"
+  - {src: clips/t03.mp4, dur: 2.6}               # 5.8   "with no heart and no pump."
+  - {src: clips/k3.mp4, in: 1.2, dur: 2.45}             # 8.4   "It squeezes into a root,"
+  - {src: clips/k4.mp4, dur: 3.15}               # 10.85 "then shoots up a tube thinner than a hair."
+  - {src: clips/k5.mp4, in: 1.0, dur: 3.3}       # 14.0  "Up top, water escapes through tiny pores in the leaves,"
+  - {src: clips/t07.mp4, dur: 5.9}               # 17.3  "and because water molecules grip each other…"
+  - {src: clips/k6c.mp4, dur: 4.5}               # 23.2  "In the tallest redwoods…" + 116 m
+  - {src: clips/t09.mp4, dur: 1.6}               # 27.7  "Pull too hard,"
+  - {src: clips/t10.mp4, dur: 0.75}              # 29.3  "and it snaps,"
+  - {src: clips/t11.mp4, dur: 2.55}              # 30.05 "with a pop too high for you to hear."
+  - {src: clips/k5.mp4, in: 4.6, dur: 2.88}      # 32.6  "Most of the water blasts out into the sky,"
+  - {src: clips/t13.mp4, dur: 2.76}              # 35.48 "but sunlight rips a little of it apart,"
+  - {src: clips/t14.mp4, dur: 1.9}               # 38.24 "and the oxygen it frees?"
+  - {src: clips/k7.mp4, in: 1.0, dur: 2.06}  # 40.14 "You're breathing it right now." (a person breathing by a window)
+  - {src: clips/t16.mp4, dur: 2.9}               # 42.2  GO WATER YOUR PLANTS.
+audio:
+  - {src: vo/w1.mp3, at: 2.5, role: voice}
+  - {src: vo/w2.mp3, at: 8.4, role: voice}
+  - {src: vo/w3.mp3, at: 14.0, role: voice}
+  - {src: vo/w4.mp3, at: 23.2, role: voice}
+  - {src: vo/w5.mp3, at: 27.7, role: voice}
+  - {src: vo/w6.mp3, at: 32.6, role: voice}
+  # spliced so its last hit lands on the end card, and cut to silence for the snap
+  - {src: music/bed-edit.wav, at: 0, role: music, gain_db: -12}
+  - {src: sfx/impact.wav, at: 0.65, role: sfx, gain_db: -3}    # drop hits the soil
+  - {src: sfx/whoosh.wav, at: 2.0, role: sfx, gain_db: -9}     # dive
+  - {src: sfx/thud.wav, at: 6.37, role: sfx, gain_db: -9}      # NO HEART
+  - {src: sfx/thud.wav, at: 7.39, role: sfx, gain_db: -9}      # NO PUMP
+  - {src: sfx/whoosh.wav, at: 10.35, role: sfx, gain_db: -9}   # rocket up the tube
+  - {src: sfx/whoosh.wav, at: 13.5, role: sfx, gain_db: -8}    # into the leaf
+  - {src: sfx/thud.wav, at: 18.67, role: sfx, gain_db: -10}     # GRIP
+  - {src: sfx/riser.wav, at: 27.0, role: sfx, gain_db: -12}     # pull too hard…
+  - {src: sfx/snap.wav, at: 29.3, role: sfx, gain_db: -7}      # SNAP
+  - {src: sfx/tick.wav, at: 30.6, role: sfx, gain_db: -6}      # the pop spike
+  - {src: sfx/whoosh.wav, at: 32.1, role: sfx, gain_db: -9}    # burst into the sky
+  - {src: sfx/zap.wav, at: 36.1, role: sfx, gain_db: -8}       # sunlight rips it apart
+  - {src: sfx/whoosh.wav, at: 38.6, role: sfx, gain_db: -6}    # O2 rockets out
+  - {src: sfx/button.wav, at: 42.3, role: sfx, gain_db: -2}    # end card

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+:root{--bg:#111214;--surface:#1a1b1e;--line:#2b2d31;--t1:#ececee;--t2:#a9abb2;--t3:#74767d;--accent:#7ea6e8;--on-accent:#0e1522}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--t1);font:400 16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1320px;margin:0 auto;padding:56px 32px 140px}
+h1,h2,h3{font-family:ui-serif,"Iowan Old Style",Georgia,serif;font-weight:400;letter-spacing:-.01em}
+header h1{font-size:60px;line-height:1.05;margin:0 0 16px}
+header p{color:var(--t2);max-width:740px;margin:0 0 10px;font-size:17px}
+header .how{color:var(--t3);font-size:14px}
+nav{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);margin:40px -32px 0;padding:12px 32px;display:flex;gap:8px 22px;flex-wrap:wrap;font-size:14px}
+nav a{color:var(--t2);text-decoration:none}nav a:hover{color:var(--t1)}
+nav a b{color:var(--t3);font-weight:500;margin-right:6px}
+section{padding-top:56px;scroll-margin-top:48px}
+h2{font-size:38px;line-height:1.1;margin:0 0 24px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+h2 small{font:500 13px system-ui,sans-serif;color:var(--t3);letter-spacing:.08em;margin-right:12px;vertical-align:middle}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,400px),1fr));gap:32px 28px}
+.item{display:flex;flex-direction:column;min-width:0}
+.media img,.media video{width:100%;aspect-ratio:16/9;object-fit:contain;background:#000;border-radius:12px;display:block}
+.body{padding-top:14px}
+.item h3{font-size:26px;line-height:1.15;margin:0 0 4px}
+.item .notes{color:var(--t2);margin:0 0 12px;font-size:15px;white-space:pre-line}
+audio{width:100%;height:36px;margin:2px 0 4px;color-scheme:dark}
+.pick{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.pick button{font:500 13px system-ui,sans-serif;color:var(--t2);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer}
+.pick button:hover{color:var(--t1);border-color:#45474d}
+.pick button:focus-visible,#copy:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pick button.on[data-v=love]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.pick button.on[data-v=maybe]{background:#34363b;color:var(--t1);border-color:#55575d}
+.pick button.on[data-v=no]{background:transparent;color:var(--t3);text-decoration:line-through}
+.pick textarea{flex-basis:100%;margin-top:6px;min-height:38px;resize:vertical;background:transparent;border:0;border-bottom:1px solid var(--line);color:var(--t1);font:inherit;font-size:14px;padding:6px 0}
+.pick textarea:focus{outline:none;border-color:var(--accent)}
+#bar{position:fixed;left:0;right:0;bottom:0;z-index:9;background:color-mix(in srgb,var(--surface) 93%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:14px 32px;display:flex;gap:16px;align-items:center;justify-content:space-between}
+#count{color:var(--t2);font-size:14px}
+#copy{font:600 14px system-ui,sans-serif;background:var(--accent);color:var(--on-accent);border:0;border-radius:999px;padding:10px 18px;cursor:pointer}
+#fallback{display:none;position:fixed;left:16px;right:16px;bottom:72px;z-index:10;max-width:640px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+#fallback.show{display:block}
+#fallback p{margin:0 0 8px;color:var(--t2);font-size:13px}
+#fallback textarea{width:100%;height:160px;background:var(--bg);color:var(--t1);border:1px solid var(--line);border-radius:8px;font:13px/1.5 ui-monospace,Menlo,monospace;padding:8px}
+@media (max-width:700px){.wrap{padding:36px 16px 140px}header h1{font-size:40px}h2{font-size:30px}nav{margin:28px -16px 0;padding:12px 16px}#bar{padding:12px 16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>{{TITLE}}</h1>
+{{INTRO}}
+<p class="how">Mark anything <b>Love it</b>, <b>Maybe</b> or <b>Not this</b>, add a note if you like, then press <b>Copy my picks</b> and paste the text back.</p>
+</header>
+<nav aria-label="Sections">{{NAV}}</nav>
+{{SECTIONS}}
+</div>
+<div id="fallback" role="dialog" aria-label="Your picks"><p>Copying was blocked. Select all of this and copy it by hand:</p><textarea id="picks-text" readonly></textarea></div>
+<div id="bar"><span id="count" aria-live="polite"></span><button id="copy" type="button">Copy my picks</button></div>
+<script>
+const TITLE = {{TITLE_JSON}}, KEY = 'review:' + TITLE;
+let state = {}; try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+const picks = [...document.querySelectorAll('.pick')];
+const marked = s => s && (s.v || (s.note || '').trim());
+function paint() {
+  picks.forEach(p => { const s = state[p.dataset.id] || {};
+    p.querySelectorAll('button').forEach(b => { const on = s.v === b.dataset.v; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    const n = p.querySelector('textarea'); if (document.activeElement !== n) n.value = s.note || ''; });
+  const n = picks.filter(p => marked(state[p.dataset.id])).length;
+  document.getElementById('count').textContent = n ? `${n} of ${picks.length} marked` : `Nothing marked yet (${picks.length} items)`;
+}
+picks.forEach(p => {
+  const id = p.dataset.id, get = () => state[id] || (state[id] = {});
+  p.querySelectorAll('button').forEach(b => b.onclick = () => { const s = get(); s.v = s.v === b.dataset.v ? null : b.dataset.v; save(); paint(); });
+  p.querySelector('textarea').oninput = e => { get().note = e.target.value; save(); paint(); };
+});
+const audios = [...document.querySelectorAll('audio')];
+audios.forEach(a => a.addEventListener('play', () => audios.forEach(o => o !== a && o.pause())));
+function picksText() {
+  const words = { love: 'LOVE', maybe: 'MAYBE', no: 'NOT THIS' }, out = [TITLE];
+  document.querySelectorAll('section').forEach(sec => {
+    const lines = [...sec.querySelectorAll('.pick')].map(p => { const s = state[p.dataset.id]; if (!marked(s)) return null;
+      const note = (s.note || '').trim().replace(/\s+/g, ' ');
+      return `- ${p.dataset.label}: ${s.v ? words[s.v] : 'NOTE'}${note ? ` (${note})` : ''}`; }).filter(Boolean);
+    if (lines.length) out.push('', sec.dataset.name, ...lines);
+  });
+  return out.length > 1 ? out.join('\n') : TITLE + '\n(nothing marked)';
+}
+document.getElementById('copy').onclick = async () => {
+  const txt = picksText(), btn = document.getElementById('copy'), box = document.getElementById('fallback'), ta = document.getElementById('picks-text');
+  ta.value = txt; let ok = false;
+  try { await navigator.clipboard.writeText(txt); ok = true; } catch (e) {
+    box.classList.add('show'); ta.focus(); ta.select();
+    try { ok = document.execCommand('copy'); } catch (e2) {}
+  }
+  if (ok) box.classList.remove('show');
+  btn.textContent = ok ? 'Copied: paste it back' : 'Copy the text above';
+  setTimeout(() => btn.textContent = 'Copy my picks', 2500);
+};
+paint();
+</script>
+</body>
+</html>

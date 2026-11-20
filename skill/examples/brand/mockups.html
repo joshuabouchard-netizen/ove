@@ -1,0 +1,69 @@
+<!doctype html>
+<!--
+  One page, many brand assets. Pick the direction and the asset in the URL, render with vg html:
+    vg html "mockups.html?d=1&a=lockup"    -o out/1-lockup.png    --size 1600x900
+    vg html "mockups.html?d=1&a=type"      -o out/1-type.png      --size 1600x900
+    vg html "mockups.html?d=1&a=cardfront" -o out/1-cardfront.png --size 1050x600   (3.5 x 2 in at 300 dpi)
+    vg html "mockups.html?d=1&a=cardback"  -o out/1-cardback.png  --size 1050x600
+    vg html "mockups.html?d=1&a=social"    -o out/1-social.png    --size 1080x1350  (4:5 post)
+    vg html "mockups.html?d=1&a=poster"    -o out/1-poster.png    --size 1240x1754  (A-series ratio)
+  Tokens live in directions.js. Add &nosub to drop the subtitle line from a lockup.
+-->
+<html><head><meta charset="utf-8"><title>Brand mockups</title>
+<script src="directions.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden}
+  body{background:var(--ground);color:var(--ink);font-family:var(--body),system-ui,sans-serif;font-weight:var(--bodyW)}
+  .disp{font-family:var(--display),Georgia,serif;font-weight:var(--displayW);letter-spacing:.01em;line-height:1}
+  .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .mark img{display:block;object-fit:cover;-webkit-mask-image:radial-gradient(circle,#000 58%,transparent 71%);mask-image:radial-gradient(circle,#000 58%,transparent 71%)}
+  .sub{font-style:italic;opacity:.8}
+  .kicker{text-transform:uppercase;letter-spacing:.22em;font-size:14px;opacity:.7}
+  .photo{background-size:cover;background-position:center}
+  .ph{background:radial-gradient(120% 90% at 30% 30%,var(--accent) 0%,transparent 55%),radial-gradient(120% 120% at 80% 90%,var(--ink) 0%,transparent 60%),var(--ground)}
+</style></head>
+<body><div id="root"></div>
+<script>
+const q = new URLSearchParams(location.search);
+const d = DIRECTIONS[q.get("d") || "1"], a = q.get("a") || "lockup", nosub = q.has("nosub");
+const B = BRAND;
+const css = document.documentElement.style;
+for (const [k, v] of Object.entries({ground: d.ground, ink: d.ink, accent: d.accent, display: `'${d.display}'`, body: `'${d.body}'`, displayW: d.displayWeight, bodyW: d.bodyWeight})) css.setProperty("--" + k, v);
+const link = document.createElement("link"); link.rel = "stylesheet"; link.href = FONT_URL(d); document.head.appendChild(link);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const mark = (px) => d.mark ? `<div class="mark"><img src="${esc(d.mark)}" width="${px}" height="${px}"></div>` : `<div class="mark">${SVG_MARK(d, px)}</div>`;
+const photo = (style) => d.photo ? `<div class="photo" style="background-image:url('${esc(d.photo)}');${style}"></div>` : `<div class="photo ph" style="${style}"></div>`;
+const lockup = (scale, sub = !nosub) => `
+  <div style="display:flex;flex-direction:column;align-items:center;gap:${18 * scale}px">
+    ${mark(Math.round(260 * scale))}
+    <div class="disp" style="font-size:${96 * scale}px">${esc(B.name)}</div>
+    ${sub ? `<div class="sub" style="font-size:${30 * scale}px">${esc(B.sub)}</div>` : ""}
+  </div>`;
+
+const R = {
+  lockup: () => `<div class="center" style="gap:34px">${lockup(1)}<div style="font-size:26px;opacity:.75">${esc(B.tagline)}</div></div>`,
+  type: () => `<div style="position:absolute;inset:90px 110px;display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center">
+      <div class="disp" style="font-size:420px;color:var(--accent)">Aa</div>
+      <div style="display:flex;flex-direction:column;gap:22px">
+        <div class="kicker">Display</div><div class="disp" style="font-size:54px">${esc(d.display)}</div>
+        <div class="kicker" style="margin-top:14px">Text</div><div style="font-size:34px">${esc(d.body)}</div>
+        <div class="disp" style="font-size:40px;margin-top:22px">${esc(B.tagline)}</div>
+        <div style="font-size:21px;line-height:1.55;opacity:.8;max-width:620px">The quick brown fox jumps over the lazy dog. Body copy at reading size, set in the text face, to check the pairing holds up in a paragraph.</div>
+      </div></div>`,
+  cardfront: () => `<div class="center">${lockup(.62)}</div>`,
+  cardback: () => `<div style="position:absolute;inset:0;background:${d.dark};color:${d.onDark};padding:70px 80px;display:flex;flex-direction:column;justify-content:space-between">
+      <div class="disp" style="font-size:52px">${esc(B.name)}</div>
+      <div style="font-size:24px;line-height:1.6">${B.contact.map(esc).join("<br>")}</div></div>`,
+  social: () => `${photo("position:absolute;left:0;top:0;width:100%;height:68%")}
+      <div style="position:absolute;left:0;right:0;bottom:0;height:32%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px">
+        <div class="disp" style="font-size:58px;text-align:center;padding:0 60px">${esc(B.tagline)}</div>
+        <div style="display:flex;align-items:center;gap:16px">${mark(64)}<div class="disp" style="font-size:30px">${esc(B.name)}</div></div></div>`,
+  poster: () => `${photo("position:absolute;left:0;top:0;width:100%;height:56%")}
+      <div style="position:absolute;left:0;right:0;top:56%;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;text-align:center">
+        ${lockup(.8)}
+        <div class="disp" style="font-size:40px;color:var(--accent)">${esc(B.tagline)}</div>
+        <div style="font-size:22px;opacity:.75">${B.contact.map(esc).join(" &middot; ")}</div></div>`,
+};
+document.getElementById("root").innerHTML = (R[a] || R.lockup)();
+</script></body></html>

@@ -1,0 +1,23 @@
+{
+  "title": "Example review",
+  "intro": "Placeholder media to show the layout: a test-pattern clip, a flat colour still and two tones.\n\nBuild with: python build.py example.json -o example/index.html",
+  "sections": [
+    {
+      "name": "Looks",
+      "items": [
+        {"id": "look-a", "label": "Look A: test pattern", "video": "clip.mp4", "poster": "clip-poster.jpg",
+         "audio": "tone.mp3", "notes": "A looping clip with a poster frame and its own sound sketch."},
+        {"id": "look-b", "label": "Look B: flat colour", "image": "still.jpg",
+         "notes": "A still image only."},
+        {"id": "look-c", "label": "Look C <with> \"escaped\" & text", "notes": "Text-only item; the label checks HTML escaping."}
+      ]
+    },
+    {
+      "name": "Sounds",
+      "items": [
+        {"id": "tone-low", "label": "Low tone", "audio": "tone.mp3", "notes": "330 Hz, two seconds."},
+        {"id": "tone-high", "label": "High tone", "audio": "tone2.mp3", "notes": "495 Hz, two seconds. Playing one pauses the other."}
+      ]
+    }
+  ]
+}

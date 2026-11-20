@@ -1,0 +1,7 @@
+{
+  "name": "pages-password-gate",
+  "private": true,
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

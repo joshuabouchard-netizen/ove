@@ -1,0 +1,50 @@
+<!doctype html>
+<!--
+  Comparison board: one card per direction in directions.js (three across). Render it wide:
+    vg html board.html -o out/board.png --size 2400x1100
+  Raise the height for six directions (about 2330 for two rows of three with photos).
+-->
+<html><head><meta charset="utf-8"><title>Brand directions</title>
+<script src="directions.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#EDEBE6;color:#1d1d1b;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding:64px}
+  h1{font-size:44px;font-weight:600;margin-bottom:8px}
+  .lede{font-size:20px;opacity:.65;margin-bottom:44px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:36px}
+  .card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+  .head{display:flex;justify-content:space-between;align-items:baseline;padding:22px 26px 14px;font-size:15px;letter-spacing:.14em;text-transform:uppercase;opacity:.7}
+  .lock{height:330px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+  .lock img{object-fit:cover;-webkit-mask-image:radial-gradient(circle,#000 58%,transparent 71%);mask-image:radial-gradient(circle,#000 58%,transparent 71%)}
+  .photo{height:200px;background-size:cover;background-position:center}
+  .sw{display:flex;gap:10px;padding:20px 26px 6px}
+  .sw div{flex:1;font-size:12px;line-height:1.35}
+  .sw i{display:block;height:46px;border-radius:6px;margin-bottom:6px;border:1px solid rgba(0,0,0,.08)}
+  .notes{padding:12px 26px 26px;font-size:16px;line-height:1.5}
+  .notes b{display:inline-block;width:64px;font-weight:600}
+  .watch{margin-top:8px;color:#9a3412}
+</style></head>
+<body>
+<h1 id="t"></h1><div class="lede">Directions to choose between, or mix. Every word here is live type; only the marks and photographs are generated.</div>
+<div class="grid" id="g"></div>
+<script>
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+document.getElementById("t").textContent = BRAND.name + ": brand directions";
+const fams = new Set(); Object.values(DIRECTIONS).forEach((d) => { fams.add(d.display); fams.add(d.body); });
+const l = document.createElement("link"); l.rel = "stylesheet";
+l.href = "https://fonts.googleapis.com/css2?" + [...fams].map((f) => "family=" + f.replace(/ /g, "+") + ":ital,wght@0,300..800;1,300..800").join("&") + "&display=block";
+document.head.appendChild(l);
+document.getElementById("g").innerHTML = Object.entries(DIRECTIONS).map(([n, d]) => `
+  <div class="card">
+    <div class="head"><span>${String(n).padStart(2, "0")} &middot; ${esc(d.title)}</span></div>
+    <div class="lock" style="background:${d.ground};color:${d.ink}">
+      ${d.mark ? `<img src="${esc(d.mark)}" width="170" height="170">` : SVG_MARK(d, 150)}
+      <div style="font-family:'${d.display}',Georgia,serif;font-weight:${d.displayWeight};font-size:52px">${esc(BRAND.name)}</div>
+      <div style="font-family:'${d.body}',sans-serif;font-style:italic;font-size:19px;opacity:.8">${esc(BRAND.sub)}</div>
+    </div>
+    <div class="photo" style="${d.photo ? `background-image:url('${esc(d.photo)}')` : `background:radial-gradient(120% 90% at 30% 30%,${d.accent},transparent 55%),radial-gradient(120% 120% at 80% 90%,${d.ink},transparent 60%),${d.ground}`}"></div>
+    <div class="sw">${d.swatches.map(([name, hex]) => `<div><i style="background:${hex}"></i>${esc(name)}<br><span style="opacity:.6">${hex}</span></div>`).join("")}</div>
+    <div class="notes"><div><b>Style</b>${esc(d.style)}</div><div><b>Feel</b>${esc(d.feel)}</div>
+      <div><b>Type</b>${esc(d.display)} + ${esc(d.body)}</div><div class="watch"><b>Watch</b>${esc(d.watch)}</div></div>
+  </div>`).join("");
+</script></body></html>

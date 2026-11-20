@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capture demo</title>
+<style>html,body{margin:0;height:100%;background:#16171a;overflow:hidden}canvas{display:block;width:100vw;height:100vh}</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+// Minimal page for capture.py: everything drawn is a pure function of t.
+const capture = new URLSearchParams(location.search).has('capture');
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+const ACCENT = '#5b8def';
+
+function size() { cv.width = innerWidth; cv.height = innerHeight; }
+
+window.renderAt = t => {
+  const W = cv.width, H = cv.height, u = Math.min(W, H);
+  g.fillStyle = '#16171a'; g.fillRect(0, 0, W, H);
+  g.strokeStyle = '#2a2c31'; g.lineWidth = 1;
+  for (let x = 0; x < W; x += u / 10) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
+  const x = W / 2 + Math.sin(t * 1.3) * W * 0.3, y = H / 2 + Math.sin(t * 2.1) * H * 0.25;
+  g.save(); g.translate(x, y); g.rotate(t * 1.5);
+  g.fillStyle = ACCENT; g.fillRect(-u * 0.08, -u * 0.08, u * 0.16, u * 0.16); g.restore();
+  g.beginPath(); g.arc(W / 2, H / 2, u * (0.12 + 0.04 * Math.sin(t * 3)), 0, Math.PI * 2);
+  g.strokeStyle = '#d6d7db'; g.lineWidth = u * 0.008; g.stroke();
+  g.fillStyle = '#d6d7db'; g.font = `600 ${Math.round(u * 0.07)}px system-ui, sans-serif`;
+  g.textAlign = 'left'; g.textBaseline = 'top'; g.fillText(`t = ${t.toFixed(2)} s`, u * 0.05, u * 0.05);
+};
+
+// Interleaved stereo Int16 at 48 kHz, sent as base64 chunks of one second each.
+window.renderAudio = async (send, dur) => {
+  dur = dur || 4; const rate = 48000, n = Math.round(dur * rate);
+  const ctx = new OfflineAudioContext(2, n, rate);
+  const osc = ctx.createOscillator(), amp = ctx.createGain(), pan = ctx.createStereoPanner();
+  osc.frequency.setValueAtTime(220, 0); osc.frequency.exponentialRampToValueAtTime(880, dur);
+  amp.gain.setValueAtTime(0, 0); amp.gain.linearRampToValueAtTime(0.4, 0.1);
+  amp.gain.setValueAtTime(0.4, dur - 0.3); amp.gain.linearRampToValueAtTime(0, dur);
+  pan.pan.setValueAtTime(-0.8, 0); pan.pan.linearRampToValueAtTime(0.8, dur);
+  osc.connect(amp).connect(pan).connect(ctx.destination); osc.start(0); osc.stop(dur);
+  const buf = await ctx.startRendering(), L = buf.getChannelData(0), R = buf.getChannelData(1);
+  for (let s = 0; s < n; s += rate) {
+    const m = Math.min(rate, n - s), pcm = new Int16Array(m * 2);
+    for (let i = 0; i < m; i++) {
+      pcm[2 * i] = Math.max(-1, Math.min(1, L[s + i])) * 32767;
+      pcm[2 * i + 1] = Math.max(-1, Math.min(1, R[s + i])) * 32767;
+    }
+    const bytes = new Uint8Array(pcm.buffer); let bin = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    send(btoa(bin));
+  }
+  return n;
+};
+
+size(); addEventListener('resize', () => { size(); if (capture) renderAt(0); });
+if (capture) renderAt(0);
+else { const t0 = performance.now(); (function loop() { renderAt((performance.now() - t0) / 1000); requestAnimationFrame(loop); })(); }
+window.__ready = true;
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# secrets and personal data: never committed
+.env
+.dev.vars
+.youtube-cookies.txt
+costs.jsonl
+*.fal-job.json
+*.fal-result.json
+# local state
+skill-backups/
+dist/
+.scratch-*/
+.venv/
+__pycache__/
+.pytest_cache/
+node_modules/
+.DS_Store
