@@ -45,7 +45,7 @@ fi
 echo "uv $(uv --version | cut -d' ' -f2) · $(ffmpeg -hide_banner -version | head -1 | cut -d' ' -f1-3)"
 
 # PATH for Claude Code's shells, which read ~/.zshenv (not ~/.zshrc)
-if ! grep -qs 'OVE: tool paths' "$HOME/.zshenv"; then
+if ! grep -qs 'OVE: tool paths' "$HOME/.zshenv" && ! grep -qsE '^export PATH=.*\.local/bin.*\.pixi/bin' "$HOME/.zshenv"; then
   printf '\n# OVE: tool paths for every shell, including Claude Code'"'"'s\nexport PATH="$HOME/.local/bin:$HOME/.pixi/bin:$PATH"\n' >> "$HOME/.zshenv"
   echo "added the tool paths to ~/.zshenv"
 fi
